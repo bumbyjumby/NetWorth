@@ -1,0 +1,13 @@
+ServiceWorker unregistered for now. Would be great to show how the app can work offline.
+
+Step 1.
+Setup dev environment:
+React app
+
+.net core API
+
+Chose to keep them separate rather than have VS bundle them up with webpack.
+
+Build a small File database, just to read/write a json file. Chose not to implement any sort of locking mechanism for time.
+
+CORS- lock it down

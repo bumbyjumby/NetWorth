@@ -1,0 +1,37 @@
+
+  [
+    {
+      "recordId": "Jeremy",
+      "assets": [
+        {
+          "name": "Chequing",
+          "rate": 0,
+          "currency": "CDN",
+          "value": 100.50
+        },
+        {
+          "name": "Primary Home",
+          "rate": 10,
+          "currency": "CDN",
+          "value": 4000.00,
+          "isShortTerm": true
+        }
+      ],
+      "liabilities": [
+        {
+          "name": "Credit Card 1",
+          "rate": 13,
+          "currency": "CDN",
+          "value": 100.50
+        },
+        {
+          "name": "Mortgage",
+          "rate": 10,
+          "currency": "CDN",
+          "value": 4000.00,
+          "isShortTerm": true
+        }
+      ]
+    }
+  ]
+

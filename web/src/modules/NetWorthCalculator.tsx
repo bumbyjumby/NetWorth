@@ -21,11 +21,11 @@ export interface INetWorthCalculatorState {
 
 
 
-class NetWorthCalculator extends Component <{}, INetWorthCalculatorState> {
+class NetWorthCalculator extends Component<{}, INetWorthCalculatorState> {
 
     currencies: any | undefined;
     httpManager: HttpManager;
-    
+
     constructor(props: any) {
         super(props);
         this.httpManager = new HttpManager();
@@ -43,19 +43,19 @@ class NetWorthCalculator extends Component <{}, INetWorthCalculatorState> {
 
         this.httpManager.get('https://localhost:44321/api/main/getCurrencies')
             .then((currencies: string[]) => {
-                this.currencies = currencies.map((x: string) => {return {value: x, label: x};});
+                this.currencies = currencies.map((x: string) => { return { value: x, label: x }; });
 
-                this.setState({selectedCurrency: this.currencies.find( (x:any) => x.label === 'CDN')});
-                
+                this.setState({ selectedCurrency: this.currencies.find((x: any) => x.label === 'CDN') });
+
                 // compute initial net worth
-                this.httpManager.post('https://localhost:44321/api/main/calculateNetWorth', netWorthRecord). then (response => {
+                this.httpManager.post('https://localhost:44321/api/main/calculateNetWorth', netWorthRecord).then(response => {
                     this.setState({
                         netWorthTotal: response.totalNetWorth,
                         totalAssets: response.totalAssets,
                         totalLiabilities: response.totalLiabilities,
                         initialized: true
                     });
-                    
+
                 }).catch(error => console.log(error));
 
 
@@ -70,13 +70,13 @@ class NetWorthCalculator extends Component <{}, INetWorthCalculatorState> {
         this.httpManager.get('https://localhost:44321/api/main/getValuesInCurrency?currency=' + object.value + '&recordId=' + recordId)
             .then((object: CurrencyResult) => {
 
-                if(!object.netWorthTotals) {
+                if (!object.netWorthTotals) {
                     throw 'networthtotals is required';
                 }
                 this.setState({
                     entries: object.entries as FinancialRecord[],
                     netWorthTotal: object.netWorthTotals.totalNetWorth as number,
-                    totalAssets:  object.netWorthTotals.totalAssets as number,
+                    totalAssets: object.netWorthTotals.totalAssets as number,
                     totalLiabilities: object.netWorthTotals.totalLiabilities as number
                 })
             })
@@ -88,14 +88,14 @@ class NetWorthCalculator extends Component <{}, INetWorthCalculatorState> {
         let shortTermLiabilities: FinancialRecord[] = [];
         let longTermAssets: FinancialRecord[] = [];
         let longTermLiabilities: FinancialRecord[] = [];
-        if(this.state.entries) {
+        if (this.state.entries) {
             shortTermAssets = this.state.entries.filter(x => x.recordType === RecordType.ShortTermAsset);
             shortTermLiabilities = this.state.entries.filter(x => x.recordType === RecordType.ShortTermLiability);
             longTermAssets = this.state.entries.filter(x => x.recordType === RecordType.LongTermAsset);
             longTermLiabilities = this.state.entries.filter(x => x.recordType === RecordType.LongTermLiability);
         }
         return (
-            this.state.initialized &&  <Grid container spacing={16}>
+            this.state.initialized && <Grid container spacing={16}>
                 <Grid item xs={12}>
                     <Typography variant="h4">Tracking Your Net Worth</Typography>
                 </Grid>
@@ -122,18 +122,67 @@ class NetWorthCalculator extends Component <{}, INetWorthCalculatorState> {
                 <Grid item xs={12}>
                     <Typography variant="title">Assets</Typography>
                 </Grid>
-                {shortTermAssets.map( (x,i) => 
-                    <FinancialRecordRow key={i} 
-                        showPayment={false} 
-                        currency={this.state.selectedCurrency.value} 
-                        financialRecord={x} 
-                        onChange={(record)=>{console.log(record)}}/>)}
+                <Grid item xs={12}>
+                    <Typography variant="title">Cash and Investments</Typography>
+                </Grid>
+                {shortTermAssets.map((x, i) =>
+                    <FinancialRecordRow key={i}
+                        showPayment={false}
+                        currency={this.state.selectedCurrency.value}
+                        financialRecord={x}
+                        onChange={(record) => { console.log(record) }} />)}
+                <Grid item xs={12}>
+                    <Typography variant="title">Long Term Assets</Typography>
+                </Grid>
+                {longTermAssets.map((x, i) =>
+                    <FinancialRecordRow key={i}
+                        showPayment={false}
+                        currency={this.state.selectedCurrency.value}
+                        financialRecord={x}
+                        onChange={(record) => { console.log(record) }} />)}
+                <Grid item xs={12}>
+                    <Grid item xs={1}>
+                        <Typography variant="title">Total Assets</Typography>
+                    </Grid>
+                    <Grid item xs={1}>
+                        {formatNumber(this.state.totalAssets, this.state.selectedCurrency.value)}
+                    </Grid>
+                </Grid>
+                <Grid item xs={12}>
+                    <Typography variant="title">Liabilities</Typography>
+                </Grid>
+                <Grid item xs={12}>
+                    <Typography variant="title">Short Term Liabilities</Typography>
+                </Grid>
+                {shortTermLiabilities.map((x, i) =>
+                    <FinancialRecordRow key={i}
+                        showPayment={true}
+                        currency={this.state.selectedCurrency.value}
+                        financialRecord={x}
+                        onChange={(record) => { console.log(record) }} />)}
+                <Grid item xs={12}>
+                    <Typography variant="title">Long Term Debt</Typography>
+                </Grid>
+                {longTermLiabilities.map((x, i) =>
+                    <FinancialRecordRow key={i}
+                        showPayment={true}
+                        currency={this.state.selectedCurrency.value}
+                        financialRecord={x}
+                        onChange={(record) => { console.log(record) }} />)}
+                <Grid item xs={12}>
+                    <Grid item xs={1}>
+                        <Typography variant="title">Total Liabilities</Typography>
+                    </Grid>
+                    <Grid item xs={1}>
+                        {formatNumber(this.state.totalLiabilities, this.state.selectedCurrency.value)}
+                    </Grid>
+                </Grid>
 
             </Grid>
         )
     }
 
-  
+
 }
 
 export default NetWorthCalculator;

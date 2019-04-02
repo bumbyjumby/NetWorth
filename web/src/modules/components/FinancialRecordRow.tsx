@@ -21,14 +21,10 @@ export default class FinancialRecordRow extends Component<IFinancialRecordRowPro
                     </Grid>
                     <Grid item xs={2}>
                         <Input
-                            // label="Rate"
-                            // margin={"dense"}
                             value={financialRecord.rate}
                             onChange={(event) => { financialRecord.rate = parseFloat(event.target.value); onChange(financialRecord) }}
                         /></Grid>
                     <Grid item xs={2}><Input
-                        // label="Amount"
-                        // margin={"dense"}
                         value={(financialRecord.value as number).toFixed(2)}
                         onChange={(event) => { financialRecord.value = parseFloat(event.target.value); onChange(financialRecord) }}
                     /></Grid>

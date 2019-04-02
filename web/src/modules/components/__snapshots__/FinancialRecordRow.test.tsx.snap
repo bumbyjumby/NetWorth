@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly and creates a snapshot 1`] = `
+<div
+  className="MuiGrid-item-2 MuiGrid-grid-xs-12-41"
+>
+  <div
+    className="MuiGrid-container-1 MuiGrid-spacing-xs-16-24"
+  >
+    <div
+      className="MuiGrid-item-2 MuiGrid-grid-xs-8-37"
+    >
+      <h6
+        className="MuiTypography-root-98 MuiTypography-subtitle1-116"
+      >
+        stuff
+      </h6>
+    </div>
+    <div
+      className="MuiGrid-item-2 MuiGrid-grid-xs-2-31"
+    >
+      <div
+        className="MuiInputBase-root-147 MuiInput-root-134 MuiInput-underline-138"
+        onClick={[Function]}
+      >
+        <input
+          className="MuiInputBase-input-157 MuiInput-input-142"
+          onBlur={[Function]}
+          onChange={[Function]}
+          onFocus={[Function]}
+          type="text"
+          value={0.5}
+        />
+      </div>
+    </div>
+    <div
+      className="MuiGrid-item-2 MuiGrid-grid-xs-2-31"
+    >
+      <div
+        className="MuiInputBase-root-147 MuiInput-root-134 MuiInput-underline-138"
+        onClick={[Function]}
+      >
+        <input
+          className="MuiInputBase-input-157 MuiInput-input-142"
+          onBlur={[Function]}
+          onChange={[Function]}
+          onFocus={[Function]}
+          type="text"
+          value="1000.00"
+        />
+      </div>
+    </div>
+  </div>
+</div>
+`;

@@ -1,3 +1,8 @@
 export function formatNumber(number: number, currency: string) {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currencyDisplay: 'symbol', currency: currency }).format(number);
+    const result = new Intl.NumberFormat('en-US', { style: 'currency', currencyDisplay: 'symbol', currency: currency }).format(number);
+    return result;
+}
+
+export function currencyNumber(number: number){
+    let str = number.toFixed(2)
 }

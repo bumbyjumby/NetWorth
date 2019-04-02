@@ -37,7 +37,6 @@ namespace DemoApi
             }));
 
             services.AddScoped<IManageData, FileDataManager>();
-            services.AddScoped<IManageNetWorth, NetWorthManager>();
             services.AddScoped<IManageCurrency, CurrencyManager>();
         }
 

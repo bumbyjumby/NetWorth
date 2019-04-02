@@ -1,5 +1,7 @@
+using DemoApi.Controllers;
 using DemoApi.Data;
 using DemoApi.Models;
+using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -10,6 +12,7 @@ namespace Tests
     public class NetWorthManagerTests
     {
         Mock<IManageData> _mockDataManager;
+        Mock<IManageCurrency> _mockCurrencyManager;
         NetWorth _model;
         [SetUp]
         public void Setup()
@@ -39,83 +42,166 @@ namespace Tests
             _mockDataManager = new Mock<IManageData>();
             _mockDataManager.Setup(x => x.Read(It.IsAny<string>())).Returns<string>(y => _model);
 
+            _mockCurrencyManager = new Mock<IManageCurrency>();
+            _mockCurrencyManager.Setup(x => x.GetExchangeRate(It.IsAny<string>())).Returns<double>(y => .5);
+
         }
 
         [Test]
-        public void getRecordRetrievesRecord()
+        public void CalculateNetWorthMustCalculateCorrectly()
         {
-            var manager = new NetWorthManager(_mockDataManager.Object);
-            var netWorth = manager.GetNetWorth("bingo");
-            Assert.IsNotNull(netWorth);
-        }
+            _mockCurrencyManager = new Mock<IManageCurrency>();
+            _mockCurrencyManager.Setup(x => x.GetExchangeRate(It.IsAny<string>())).Returns<string>(y => 1);
+            var controller = new MainController(_mockCurrencyManager.Object, _mockDataManager.Object);
 
-        [Test]
-        public void updateSpecificFinancialRecordShouldOnlyUpdateThatRecord()
-        {
-            var manager = new NetWorthManager(_mockDataManager.Object);
-            var netWorth = manager.GetNetWorth("bingo");
-            Assert.IsNotNull(netWorth);
-
-            var model = new UpdateFinancialRecord
+            var netWorth = new NetWorth
             {
-                RecordId = "bingo",
-                FrId = _model.Entries[0].Id,
-                NewRate = 1234,
-                NewValue = 4321
-            };
-            manager.UpdateNetWorth(model);
-
-            var newNetWorth = manager.GetNetWorth("bingo");
-            Assert.AreEqual(model.NewRate, newNetWorth.Entries[0].Rate);
-            Assert.AreEqual(model.NewValue, newNetWorth.Entries[0].Value);
-        }
-
-        [Test]
-        public void PostingNetWorthRecordShouldReturnCorrectTotals()
-        {
-            var model = new NetWorth
-            {
-                RecordId = "myrecord",
+                Currency = "CDN",
                 Entries = new List<FinancialRecord>
-                {
-                    new FinancialRecord{
+               {
+                   new FinancialRecord{
                         Id=1,
-                        Currency="CDN",
                         RecordType=RecordType.ShortTermAsset,
                         Name="Chequing",
                         Rate=10.5,
-                        Value=1000},
+                        Value=2000},
                     new FinancialRecord{
                         Id=2,
-                        Currency="CDN",
-                        RecordType=RecordType.LongTermAsset,
+                        RecordType=RecordType.ShortTermLiability,
                         Name="Mortgage",
+                        Rate=10.5,
+                        Value=1000}
+                },
+                RecordId="TheRecord"
+               
+            };
+            _mockDataManager.Setup(x => x.Read(It.IsAny<string>())).Returns<string>(y => netWorth);
+            var result = controller.CalculateNetWorth(netWorth);
+
+            Assert.NotNull(result);
+            Assert.AreEqual(2000, result.TotalAssets);
+            Assert.AreEqual(1000, result.TotalLiabilities);
+            Assert.AreEqual(1000, result.TotalNetWorth);
+
+        }
+
+        [Test]
+        public void CalculateNetWorthMustReturnNullIfNullGiven()
+        {
+            _mockCurrencyManager = new Mock<IManageCurrency>();
+            _mockCurrencyManager.Setup(x => x.GetExchangeRate(It.IsAny<string>())).Returns<string>(y => 1);
+            var controller = new MainController(_mockCurrencyManager.Object, _mockDataManager.Object);
+
+            var netWorth = new NetWorth
+            {
+                Currency = "CDN",
+                Entries = new List<FinancialRecord>
+               {
+                   new FinancialRecord{
+                        Id=1,
+                        RecordType=RecordType.ShortTermAsset,
+                        Name="Chequing",
                         Rate=10.5,
                         Value=2000},
                     new FinancialRecord{
-                        Id=1,
-                        Currency="CDN",
-                        RecordType=RecordType.ShortTermLiability,
-                        Name="Chequing",
-                        Rate=10.5,
-                        Value=3000},
-                    new FinancialRecord{
                         Id=2,
-                        Currency="CDN",
-                        RecordType=RecordType.LongTermLiability,
+                        RecordType=RecordType.ShortTermLiability,
                         Name="Mortgage",
                         Rate=10.5,
-                        Value=4000}
+                        Value=1000}
                 }
             };
-            _mockDataManager.Setup(x => x.Read(It.IsAny<string>())).Returns<string>(y => model);
-            var manager = new NetWorthManager(_mockDataManager.Object);
-            var result = manager.CalculateNetWorth(model);
-
-            Assert.AreEqual(3000, result.TotalAssets);
-            Assert.AreEqual(7000, result.TotalLiabilities);
-            Assert.AreEqual(-4000, result.TotalNetWorth);
+            _mockDataManager.Setup(x => x.Read(It.IsAny<string>())).Returns<string>(y => netWorth);
+            var result = controller.CalculateNetWorth(null);
+            Assert.Null(result);
+           
         }
+
+        [Test]
+        public void CalculateNetWorthMustReturnNullIfNoEntries()
+        {
+            _mockCurrencyManager = new Mock<IManageCurrency>();
+            _mockCurrencyManager.Setup(x => x.GetExchangeRate(It.IsAny<string>())).Returns<string>(y => 1);
+            var controller = new MainController(_mockCurrencyManager.Object, _mockDataManager.Object);
+
+            var netWorth = new NetWorth
+            {
+                Currency = "CDN",
+                Entries = null
+            };
+            _mockDataManager.Setup(x => x.Read(It.IsAny<string>())).Returns<string>(y => netWorth);
+            var result = controller.CalculateNetWorth(netWorth);
+            Assert.Null(result);
+
+        }
+        /*
+              [Test]
+              public void updateSpecificFinancialRecordShouldOnlyUpdateThatRecord()
+              {
+                  var manager = new NetWorthManager(_mockDataManager.Object);
+                  var netWorth = manager.GetNetWorth("bingo");
+                  Assert.IsNotNull(netWorth);
+
+                  var model = new UpdateFinancialRecord
+                  {
+                      RecordId = "bingo",
+                      FrId = _model.Entries[0].Id,
+                      NewRate = 1234,
+                      NewValue = 4321
+                  };
+                  manager.UpdateNetWorth(model);
+
+                  var newNetWorth = manager.GetNetWorth("bingo");
+                  Assert.AreEqual(model.NewRate, newNetWorth.Entries[0].Rate);
+                  Assert.AreEqual(model.NewValue, newNetWorth.Entries[0].Value);
+              }
+
+              [Test]
+              public void PostingNetWorthRecordShouldReturnCorrectTotals()
+              {
+                  var model = new NetWorth
+                  {
+                      RecordId = "myrecord",
+                      Entries = new List<FinancialRecord>
+                      {
+                          new FinancialRecord{
+                              Id=1,
+                              Currency="CDN",
+                              RecordType=RecordType.ShortTermAsset,
+                              Name="Chequing",
+                              Rate=10.5,
+                              Value=1000},
+                          new FinancialRecord{
+                              Id=2,
+                              Currency="CDN",
+                              RecordType=RecordType.LongTermAsset,
+                              Name="Mortgage",
+                              Rate=10.5,
+                              Value=2000},
+                          new FinancialRecord{
+                              Id=1,
+                              Currency="CDN",
+                              RecordType=RecordType.ShortTermLiability,
+                              Name="Chequing",
+                              Rate=10.5,
+                              Value=3000},
+                          new FinancialRecord{
+                              Id=2,
+                              Currency="CDN",
+                              RecordType=RecordType.LongTermLiability,
+                              Name="Mortgage",
+                              Rate=10.5,
+                              Value=4000}
+                      }
+                  };
+                  _mockDataManager.Setup(x => x.Read(It.IsAny<string>())).Returns<string>(y => model);
+                  var manager = new NetWorthManager(_mockDataManager.Object);
+                  var result = manager.CalculateNetWorth(model);
+
+                  Assert.AreEqual(3000, result.TotalAssets);
+                  Assert.AreEqual(7000, result.TotalLiabilities);
+                  Assert.AreEqual(-4000, result.TotalNetWorth);
+              }*/
 
 
         // setting value should update total and net worth

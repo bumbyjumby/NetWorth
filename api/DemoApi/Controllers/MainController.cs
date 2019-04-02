@@ -29,18 +29,23 @@ namespace DemoApi.Controllers
         [EnableCors("MyLoosePolicy")]
         [HttpPost]
         [Route("calculateNetWorth")]
-        public ActionResult<NetWorthTotal> CalculateNetWorth([FromBody] NetWorth netWorth)
+        public NetWorthTotal CalculateNetWorth([FromBody] NetWorth netWorth)
         {
+            if (netWorth == null)
+                return null;
             // ensure everything is in CDN, 
             var exchangeRate = _currencyManager.GetExchangeRate(netWorth.Currency);
 
-            netWorth.Entries.ForEach(x => x.Value = x.Value * exchangeRate);
+            if (netWorth.Entries != null)
+            {
+                netWorth.Entries.ForEach(x => x.Value = x.Value * exchangeRate);
+            }
 
             _dataManager.CreateOrUpdate(netWorth);
 
             var updatedModel = _dataManager.Read(netWorth.RecordId);
 
-            return Ok(ComputeTotals(updatedModel));
+            return ComputeTotals(updatedModel);
         }
 
         [EnableCors("MyLoosePolicy")]
@@ -65,6 +70,11 @@ namespace DemoApi.Controllers
 
         private NetWorthTotal ComputeTotals(NetWorth model)
         {
+            if(model.Entries == null)
+            {
+                return null;
+            }
+
             var totalAssets = model.Entries.Where(x => x.RecordType == RecordType.LongTermAsset || x.RecordType == RecordType.ShortTermAsset).Sum(x => x.Value);
             var totalLiabilities = model.Entries.Where(x => x.RecordType == RecordType.LongTermLiability || x.RecordType == RecordType.ShortTermLiability).Sum(x => x.Value);
 

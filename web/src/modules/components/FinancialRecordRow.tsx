@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { Grid, TextField, Input, Typography } from "@material-ui/core";
 import FinancialRecord from "../../models/FinancialRecord";
-import { formatNumber } from "../../utils/helperFunctions";
 export interface IFinancialRecordRowProps {
     currency: string;
     financialRecord: FinancialRecord,
@@ -14,9 +13,9 @@ export default class FinancialRecordRow extends Component<IFinancialRecordRowPro
         const { financialRecord, onChange, currency } = this.props;
         return (
             <Grid item xs={12}>
-                <Grid container>
+                <Grid container spacing={16}>
                     <Grid item xs={8}>
-                        <Typography variant="h6">
+                        <Typography variant="subtitle1">
                             {financialRecord.name}
                         </Typography>
                     </Grid>
@@ -30,7 +29,7 @@ export default class FinancialRecordRow extends Component<IFinancialRecordRowPro
                     <Grid item xs={2}><Input
                         // label="Amount"
                         // margin={"dense"}
-                        value={formatNumber(financialRecord.value as number, currency)}
+                        value={(financialRecord.value as number).toFixed(2)}
                         onChange={(event) => { financialRecord.value = parseFloat(event.target.value); onChange(financialRecord) }}
                     /></Grid>
                 </Grid>

@@ -38,7 +38,7 @@ namespace DemoApi.Controllers
 
             if (netWorth.Entries != null)
             {
-                netWorth.Entries.ForEach(x => x.Value = x.Value * exchangeRate);
+                netWorth.Entries.ForEach(x => x.Value = System.Math.Round(x.Value * exchangeRate, 2));
             }
 
             _dataManager.CreateOrUpdate(netWorth);
@@ -57,7 +57,7 @@ namespace DemoApi.Controllers
            
             var exchangeRate = _currencyManager.GetExchangeRate(currency);
 
-            networthCDN.Entries.ForEach(x => x.Value = x.Value / exchangeRate);
+            networthCDN.Entries.ForEach(x => x.Value = System.Math.Round(x.Value / exchangeRate, 2));
          
             var result = new SetCurrencyResult();
             result.Currency = currency;

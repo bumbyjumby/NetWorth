@@ -1,8 +1,8 @@
 import React, { Component } from "react";
-import { Grid, TextField, Input, Typography } from "@material-ui/core";
+import { Grid, TextField, Input, Typography, InputAdornment } from "@material-ui/core";
 import FinancialRecord from "../../models/FinancialRecord";
 export interface IFinancialRecordRowProps {
-    currency: string;
+    currencySymbol: string;
     financialRecord: FinancialRecord,
     onChange: (financialRecord: FinancialRecord) => void,
     showPayment: boolean
@@ -10,7 +10,7 @@ export interface IFinancialRecordRowProps {
 export default class FinancialRecordRow extends Component<IFinancialRecordRowProps>{
 
     render() {
-        const { financialRecord, onChange, currency } = this.props;
+        const { financialRecord, onChange, currencySymbol } = this.props;
         return (
             <Grid item xs={12}>
                 <Grid container spacing={16}>
@@ -24,11 +24,16 @@ export default class FinancialRecordRow extends Component<IFinancialRecordRowPro
                             value={financialRecord.rate}
                             onChange={(event) => { financialRecord.rate = parseFloat(event.target.value); onChange(financialRecord) }}
                         /></Grid>
-                    <Grid item xs={2}><Input
-                        value={(financialRecord.value as number).toFixed(2)}
-                        onChange={(event) => { financialRecord.value = parseFloat(event.target.value); onChange(financialRecord) }}
-                    /></Grid>
-                </Grid>
+                    <Grid item xs={2}>
+                        <TextField
+                            value={financialRecord.value as number}
+                            onChange={(event) => { financialRecord.value = parseFloat(event.target.value); onChange(financialRecord) }}
+                            InputProps={{
+                                startAdornment: <InputAdornment position="start">{currencySymbol}</InputAdornment>,
+                              }}
+                        />
+                    </Grid>
+                </Grid> 
             </Grid>
         )
     }

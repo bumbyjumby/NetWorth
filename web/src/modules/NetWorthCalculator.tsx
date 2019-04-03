@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Grid, Typography } from '@material-ui/core';
+import { Grid, Typography, TextField, InputAdornment } from '@material-ui/core';
 import Select from 'react-select';
 import HttpManager from "./HttpManager";
 import NetWorthRecord from "../models/NetWorth";
@@ -9,6 +9,7 @@ import CurrencyResult from "../models/CurrencyResult";
 
 export interface INetWorthCalculatorState {
     selectedCurrency: any,
+    currencySymbol: string,
     netWorthTotal: number,
     totalAssets: number,
     totalLiabilities: number,
@@ -33,6 +34,7 @@ class NetWorthCalculator extends Component<{}, INetWorthCalculatorState> {
         this.state = {
             recordId: netWorthRecord.recordId,
             selectedCurrency: null,
+            currencySymbol: 'CDN',
             netWorthTotal: 0,
             totalAssets: 0,
             totalLiabilities: 0,
@@ -45,7 +47,6 @@ class NetWorthCalculator extends Component<{}, INetWorthCalculatorState> {
                 this.currencies = currencies.map((x: string) => { return { value: x, label: x }; });
 
                 this.setState({ selectedCurrency: this.currencies.find((x: any) => x.label === 'CDN') });
-
                 // compute initial net worth
                 this.httpManager.post(apiUrl + 'calculateNetWorth', netWorthRecord).then(response => {
                     this.setState({
@@ -54,7 +55,6 @@ class NetWorthCalculator extends Component<{}, INetWorthCalculatorState> {
                         totalLiabilities: response.totalLiabilities,
                         initialized: true
                     });
-
                 }).catch(error => console.log(error));
 
 
@@ -77,9 +77,15 @@ class NetWorthCalculator extends Component<{}, INetWorthCalculatorState> {
 
         }).catch(error => console.log(error));
     }
+
     onCurrencyChange = (object: any) => {
-        this.setState({ selectedCurrency: object });
+ 
+        
         const recordId = this.state.recordId;
+
+        const parts = new Intl.NumberFormat('en-US', { style: 'currency', currencyDisplay: 'symbol', currency: object.value }).formatToParts(0);
+        this.setState({ selectedCurrency: object, currencySymbol: parts[0].value });
+
         // async to server: currency change
         this.httpManager.get(apiUrl + 'getValuesInCurrency?currency=' + object.value + '&recordId=' + recordId)
             .then((object: CurrencyResult) => {
@@ -133,12 +139,12 @@ class NetWorthCalculator extends Component<{}, INetWorthCalculatorState> {
                         </Grid>
                         <Grid item xs={12}>
                             <Grid container spacing={16}>
-                                <Grid item xs={8} />
+                                <Grid item xs={7} />
                                 <Grid item xs={2}>
                                     <Typography variant="h6">Net Worth</Typography>
                                 </Grid>
-                                <Grid item xs={1}>
-                                    <Typography variant="h6">{this.state.netWorthTotal.toFixed(2)}</Typography>
+                                <Grid item xs={3} style={{textAlign: "right"}}>                            
+                                    <Typography variant="h6"> {`${this.state.currencySymbol} ${this.state.netWorthTotal.toFixed(2)}`}</Typography>
                                 </Grid>
                             </Grid>
                         </Grid>
@@ -161,7 +167,7 @@ class NetWorthCalculator extends Component<{}, INetWorthCalculatorState> {
                         {shortTermAssets.map((x, i) =>
                             <FinancialRecordRow key={i}
                                 showPayment={false}
-                                currency={this.state.selectedCurrency.value}
+                                currencySymbol={this.state.currencySymbol}
                                 financialRecord={x}
                                 onChange={this.onFieldChange} />)}
                         <Grid item xs={12}>
@@ -170,7 +176,7 @@ class NetWorthCalculator extends Component<{}, INetWorthCalculatorState> {
                         {longTermAssets.map((x, i) =>
                             <FinancialRecordRow key={i}
                                 showPayment={false}
-                                currency={this.state.selectedCurrency.value}
+                                currencySymbol={this.state.currencySymbol}
                                 financialRecord={x}
                                 onChange={this.onFieldChange} />)}
                         <Grid item xs={12}>
@@ -178,9 +184,9 @@ class NetWorthCalculator extends Component<{}, INetWorthCalculatorState> {
                                 <Grid item xs={2}>
                                     <Typography variant="title">Total Assets</Typography>
                                 </Grid>
-                                <Grid item xs={8} />
-                                <Grid item xs={2}>
-                                    <Typography variant="h6">{this.state.totalAssets.toFixed(2)}</Typography>
+                                <Grid item xs={7} />
+                                <Grid item xs={3} style={{textAlign: "right"}}>
+                                    <Typography variant="h6">{`${this.state.currencySymbol} ${this.state.totalAssets.toFixed(2)}`}</Typography>
                                 </Grid>
                             </Grid>
                         </Grid>
@@ -193,7 +199,7 @@ class NetWorthCalculator extends Component<{}, INetWorthCalculatorState> {
                         {shortTermLiabilities.map((x, i) =>
                             <FinancialRecordRow key={i}
                                 showPayment={true}
-                                currency={this.state.selectedCurrency.value}
+                                currencySymbol={this.state.currencySymbol}
                                 financialRecord={x}
                                 onChange={this.onFieldChange} />)}
                         <Grid item xs={12}>
@@ -202,7 +208,7 @@ class NetWorthCalculator extends Component<{}, INetWorthCalculatorState> {
                         {longTermLiabilities.map((x, i) =>
                             <FinancialRecordRow key={i}
                                 showPayment={true}
-                                currency={this.state.selectedCurrency.value}
+                                currencySymbol={this.state.currencySymbol}
                                 financialRecord={x}
                                 onChange={this.onFieldChange} />)}
                         <Grid item xs={12}>
@@ -210,9 +216,9 @@ class NetWorthCalculator extends Component<{}, INetWorthCalculatorState> {
                                 <Grid item xs={2}>
                                     <Typography variant="title">Total Liabilities</Typography>
                                 </Grid>
-                                <Grid item xs={8} />
-                                <Grid item xs={2}>
-                                    <Typography variant="h6">{this.state.totalLiabilities.toFixed(2)}</Typography>
+                                <Grid item xs={7} />
+                                <Grid item xs={3} style={{textAlign: "right"}}>
+                                    <Typography variant="h6">{`${this.state.currencySymbol} ${this.state.totalLiabilities.toFixed(2)}`}</Typography>
                                 </Grid>
                             </Grid>
                         </Grid>

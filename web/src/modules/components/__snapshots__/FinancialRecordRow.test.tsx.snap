@@ -37,17 +37,27 @@ exports[`renders correctly and creates a snapshot 1`] = `
       className="MuiGrid-item-2 MuiGrid-grid-xs-2-31"
     >
       <div
-        className="MuiInputBase-root-147 MuiInput-root-134 MuiInput-underline-138"
-        onClick={[Function]}
+        className="MuiFormControl-root-164"
       >
-        <input
-          className="MuiInputBase-input-157 MuiInput-input-142"
-          onBlur={[Function]}
-          onChange={[Function]}
-          onFocus={[Function]}
-          type="text"
-          value="1000.00"
-        />
+        <div
+          className="MuiInputBase-root-147 MuiInput-root-134 MuiInput-underline-138 MuiInputBase-formControl-148 MuiInput-formControl-135 MuiInputBase-adornedStart-151"
+          onClick={[Function]}
+        >
+          <div
+            className="MuiInputAdornment-root-168 MuiInputAdornment-positionStart-170"
+          />
+          <input
+            aria-invalid={false}
+            className="MuiInputBase-input-157 MuiInput-input-142 MuiInputBase-inputAdornedStart-162"
+            disabled={false}
+            onBlur={[Function]}
+            onChange={[Function]}
+            onFocus={[Function]}
+            required={false}
+            type="text"
+            value={1000}
+          />
+        </div>
       </div>
     </div>
   </div>
